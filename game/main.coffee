@@ -3,10 +3,6 @@
 Physijs.scripts.worker = 'library/physijs_worker.js'
 Physijs.scripts.ammo = 'ammo.js'
 
-###initScene, render, applyForce, setMousePosition, mouse_position,
-groundMaterial, boxMaterial,
-projector, renderer, scene, ground, light, camera, manatee###
-
 projector = new THREE.Projector()
 renderer = new THREE.WebGLRenderer()
 scene = new Physijs.Scene()
@@ -18,8 +14,7 @@ that = this
 
 initScene = =>
   renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.shadowMapEnabled = true
-  renderer.shadowMapSoft = false
+  renderer.shadowMapEnabled = false
   document.getElementById('viewport').appendChild(renderer.domElement)
 
   scene.setGravity(new THREE.Vector3(0, -100, 0))
@@ -28,19 +23,9 @@ initScene = =>
   camera.lookAt(manatee.position)
   scene.add(camera)
 
-  light = new THREE.DirectionalLight(0xFFFFFF)
+  light = new THREE.DirectionalLight(0xFFDDFE)
   light.position.set(20, 40, -15)
   light.target.position.copy(scene.position)
-  light.castShadow = true
-  light.shadowCameraLeft = -60
-  light.shadowCameraTop = -60
-  light.shadowCameraRight = 60
-  light.shadowCameraBottom = 60
-  light.shadowCameraNear = 20
-  light.shadowCameraFar = 200
-  light.shadowBias = -.1
-  light.shadowMapWidth = light.shadowMapHeight = 2048
-  light.shadowDarkness = 1
   scene.add(light)
 
   groundMaterial = Physijs.createMaterial(
@@ -57,15 +42,20 @@ initScene = =>
   manatee.castShadow = true
   scene.add(manatee)
 
-  @window.addEventListener 'deviceorientation', (e) ->
-    manatee.applyCentralImpulse({ z: e.gamma * -1000, y: 0, x: 2500 })
-
+  @window.addEventListener 'deviceorientation', (e) -> manatee.applyCentralImpulse({ z: e.gamma * -1000, y: 0, x: 2500 })
+  scene.addEventListener('update', -> camera.position.set(manatee.position.x + 750, 75, manatee.position.z))
   requestAnimationFrame(render)
 
 render = ->
   renderer.render(scene, camera)
-  scene.simulate(undefined, 10)
+  scene.simulate(undefined, 0)
+
+  #console.log(manatee.getX())
   #console.log(manatee)
+  #manatee
+  #console.log(manatee.position)
+  #console.log(manatee.position)
+  #camera.position.set()
   requestAnimationFrame(render)
 
 window.onload = initScene()

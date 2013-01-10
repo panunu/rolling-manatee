@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="css/styles.css" />
 	
 	<script type="text/javascript" src="js/three.min.js"></script>
-	<script type="text/javascript" src="physi.js"></script>
+	<script type="text/javascript" src="js/physi.js"></script>
 	
 	<script type="text/javascript">
 	
@@ -86,6 +86,7 @@
         renderer.render(scene, camera);
         scene.simulate(undefined, 1);
         console.log(manatee.position);
+        requestAnimationFrame(render);
 	};
 	
 	window.onload = initScene;

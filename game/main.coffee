@@ -15,12 +15,6 @@ manatee = new Physijs.SphereMesh(
   Physijs.createMaterial(new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/manatee.jpg') }), .4, .6)
 )
 
-ground = new Physijs.BoxMesh(
-  new THREE.CubeGeometry(10000, 1, 2000),
-  Physijs.createMaterial(new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/ground.png') }), .8, .4),
-  0
-)
-
 initScene = =>
   setupRender()
   setupWorld()
@@ -39,8 +33,8 @@ setupWorld = ->
   scene.setGravity(new THREE.Vector3(0, -100, 0))
 
 setupCameraAndLights = ->
-  camera.position.set(200, 50, 0)
-  camera.lookAt(manatee.position)
+  #camera.position.set(200, 64, 0)
+
   scene.add(camera)
 
   light = new THREE.DirectionalLight(0xFFDDFE)
@@ -49,16 +43,37 @@ setupCameraAndLights = ->
   scene.add(light)
 
 plotObjects = ->
+  plane = new THREE.PlaneGeometry(100000, 50000, 100, 100);
+  plane.dynamic = true
+
+  for vertex in plane.vertices
+    vertex.z = Math.random() * 25
+
+  plane.computeFaceNormals()
+  plane.computeVertexNormals()
+
+  material = Physijs.createMaterial(new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/ground.png') }), .8, .4)
+  material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+  material.map.repeat.set(100, 100);
+
+  ground = new Physijs.HeightfieldMesh(plane, material, 0, 100, 100)
+  ground.receiveShadow = true
+  ground.rotation.x = 11
   scene.add(ground)
 
-  manatee.position.set(-500, 20, 0)
+  manatee.position.set(0, 100, 0)
   manatee.scale.set(1, 1, 1)
   manatee.castShadow = true
+
   scene.add(manatee)
 
 setupListeners = ->
-  @window.addEventListener 'deviceorientation', (e) -> manatee.applyCentralImpulse({ z: e.gamma * -1000, y: 0, x: 250000 })
-  scene.addEventListener('update', -> camera.position.set(manatee.position.x + 750, 75, 0))
+  @window.addEventListener 'deviceorientation', (e) ->
+    manatee.applyCentralImpulse({ z: e.gamma * -1000, y: 0, x: 3000 })
+
+  scene.addEventListener 'update', ->
+    camera.lookAt(manatee.position)
+    camera.position.set(manatee.position.x + 1500, 100, 0)
 
 render = ->
   renderer.render(scene, camera)
